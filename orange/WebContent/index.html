@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+
+<script type="text/javascript" src="./js/kinetic-v5.0.1.min.js"></script>
+<script type="text/javascript" src="./js/jquery.min.js"></script>
+<script type="text/javascript" src="./js/state-machine.js"></script>
+
+<style>
+body,html {
+	height: 100%;
+	margin: 0px;
+}
+
+#container {
+	height: 100%;
+	border: solid;
+	border-color: red;
+	border-width: 1px;
+}
+</style>
+
+</head>
+<body>
+	<div id="container">
+	</div>
+  <input type="button" id="add" value="Add" style="position:absolute; left:20px; top: 20px; width:80px;">
+  <input type="button" id="edit" value="Edit" style="position:absolute; left:20px; top: 50px; width:80px;">
+  <input type="button" id="delete" value="Delete" style="position:absolute; left:20px; top: 80px; width:80px;">
+  <input type="button" id="cancel" value="Cancel" style="position:absolute; left:20px; top: 110px; width:80px;">
+	
+	<script>
+    var Manager = function() {
+      var manager = function(layer, container, btnAdd, btnEdit, btnDelete, btnCancel) {
+
+        var stateMachine = StateMachine.create({
+          initial : 'Idle',
+          events : [ {
+            name : 'addArea',
+            from : 'Idle',
+            to : 'AddingNewArea'
+          }, {
+            name : 'idle',
+            from : 'AddingNewArea',
+            to : 'Idle'
+          }, {
+            name : 'editArea',
+            from : 'Idle',
+            to : 'EditingArea'
+          }, {
+            name : 'idle',
+            from : 'EditingArea',
+            to : 'Idle'
+          }, {
+            name : 'deleteArea',
+            from : 'Idle',
+            to : 'DeletingArea'
+          }, {
+            name : 'idle',
+            from : 'DeletingArea',
+            to : 'Idle'
+          } ],
+          callbacks:{
+            onenterAddingNewArea : function(event, from, to) { console.log('> adding new area'); },
+            onleaveAddingNewArea : function(event, from, to) { console.log('< adding new area'); },
+            onenterEditingArea : function(event, from, to) { console.log('> editing area'); },
+            onleaveEditingArea : function(event, from, to) { console.log('< editing area'); },
+            onenterDeletingArea : function(event, from, to) { console.log('> deleting area'); },
+            onleaveDeletingArea : function(event, from, to) { console.log('< deleting area'); },
+            onenterIdle : function(event, from, to) { console.log('> idle'); },
+            onleaveIdle : function(event, from, to) { console.log('< idle'); }
+          }
+        });
+
+        var initContainer = function(instance, container, btnAdd, btnEdit, btnDelete, btnCancel) {
+          container.on("click", clickHandler);
+          btnAdd.on("click", function(event) { stateMachine.addArea(); });
+          btnEdit.on("click", function(event) { stateMachine.editArea(); });
+          btnDelete.on("click", function(event) { stateMachine.deleteArea(); });
+          btnCancel.on("click", function(event) { stateMachine.idle(); });
+        };
+
+        var createCircle = function(x, y, layer) {
+          var circle = new Kinetic.Circle({
+            x : x,
+            y : y,
+            radius : 3,
+            fill : 'red',
+            stroke : 'black',
+            strokeWidth : 1,
+            draggable : false
+          });
+
+          circle.managerOnMouseMove = function(event) {
+            circle.x(event.pageX);
+            circle.y(event.pageY);
+            circle.getParent().draw();
+          };
+          circle.managerUnsubscribe = function() {
+            container.off("mousemove", circle.managerOnMouseMove);
+            container.off("click", circle.managerUnsubscribe);
+          };
+
+          container.on("mousemove", circle.managerOnMouseMove);
+          container.on("click", circle.managerUnsubscribe);
+
+          return circle;
+        };
+
+        var clickHandler = function(event) {
+          if (event.ctrlKey) {
+            layer.add(createCircle(event.pageX, event.pageY));
+            layer.draw();
+          }
+          ;
+        };
+
+        initContainer(this, container, btnAdd, btnEdit, btnDelete, btnCancel);
+      };
+
+      return manager;
+    }();
+
+    var container = $("#container");
+    var stage = new Kinetic.Stage({
+      container : 'container',
+      width : container.width(),
+      height : container.height(),
+      listening : true
+    });
+
+    // handle resize
+    (function(c, s) {
+      c.resize(function(event) {
+        s.setWidth(c.width());
+        s.setHeight(c.height());
+      });
+    })($(window), stage);
+
+    var layer = new Kinetic.Layer();
+    stage.add(layer);
+
+    var m = new Manager(layer, $(document), $("#add"), $("#edit"), $("#delete"), $("#cancel"));
+  </script>
+
+</body>
+</html>
