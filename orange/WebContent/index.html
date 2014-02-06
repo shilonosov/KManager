@@ -35,6 +35,38 @@ body,html {
     var Manager = function() {
       var manager = function(layer, container, btnAdd, btnEdit, btnDelete, btnCancel) {
 
+        var initializeAddState = function(){
+          console.log('initializing add state');
+          btnAdd.attr('disabled','disabled');
+          btnEdit.attr('disabled','disabled');
+          btnDelete.attr('disabled','disabled');
+          btnCancel.removeAttr('disabled');
+        };
+        
+        var uninitializeAddState = function(){
+          console.log('uninitializing add state');
+        };
+        
+        var initializeEditState = function(){
+          console.log('initializing edit state');
+          btnAdd.attr('disabled','disabled');
+          btnEdit.attr('disabled','disabled');
+          btnDelete.attr('disabled','disabled');
+          btnCancel.removeAttr('disabled');
+        };
+        
+        var uninitializeEditState = function(){
+          console.log('uninitializing edit state');
+        };
+
+        var initializeIdleState = function() {
+          console.log('initializing idle state');
+          btnAdd.removeAttr('disabled');
+          btnEdit.removeAttr('disabled');
+          btnDelete.removeAttr('disabled');
+          btnCancel.attr('disabled','disabled');
+        };
+
         var stateMachine = StateMachine.create({
           initial : 'Idle',
           events : [ {
@@ -43,38 +75,30 @@ body,html {
             to : 'AddingNewArea'
           }, {
             name : 'idle',
-            from : 'AddingNewArea',
+            from : '*',
             to : 'Idle'
           }, {
             name : 'editArea',
             from : 'Idle',
             to : 'EditingArea'
           }, {
-            name : 'idle',
-            from : 'EditingArea',
-            to : 'Idle'
-          }, {
             name : 'deleteArea',
             from : 'Idle',
             to : 'DeletingArea'
-          }, {
-            name : 'idle',
-            from : 'DeletingArea',
-            to : 'Idle'
           } ],
           callbacks:{
-            onenterAddingNewArea : function(event, from, to) { console.log('> adding new area'); },
-            onleaveAddingNewArea : function(event, from, to) { console.log('< adding new area'); },
+            onenterAddingNewArea : function(event, from, to) { initializeAddState(); },
+            onleaveAddingNewArea : function(event, from, to) { uninitializeAddState(); },
             onenterEditingArea : function(event, from, to) { console.log('> editing area'); },
             onleaveEditingArea : function(event, from, to) { console.log('< editing area'); },
             onenterDeletingArea : function(event, from, to) { console.log('> deleting area'); },
             onleaveDeletingArea : function(event, from, to) { console.log('< deleting area'); },
-            onenterIdle : function(event, from, to) { console.log('> idle'); },
+            onenterIdle : function(event, from, to) { initializeIdleState(); },
             onleaveIdle : function(event, from, to) { console.log('< idle'); }
           }
         });
 
-        var initContainer = function(instance, container, btnAdd, btnEdit, btnDelete, btnCancel) {
+        var initContainer = function(instance, container) {
           container.on("click", clickHandler);
           btnAdd.on("click", function(event) { stateMachine.addArea(); });
           btnEdit.on("click", function(event) { stateMachine.editArea(); });
@@ -117,7 +141,7 @@ body,html {
           ;
         };
 
-        initContainer(this, container, btnAdd, btnEdit, btnDelete, btnCancel);
+        initContainer(this, container);
       };
 
       return manager;
