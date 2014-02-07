@@ -24,39 +24,55 @@ body,html {
 
 </head>
 <body>
-	<div id="container">
-	</div>
-  <input type="button" id="add" value="Add" style="position:absolute; left:20px; top: 20px; width:80px;">
-  <input type="button" id="edit" value="Edit" style="position:absolute; left:20px; top: 50px; width:80px;">
-  <input type="button" id="delete" value="Delete" style="position:absolute; left:20px; top: 80px; width:80px;">
-  <input type="button" id="cancel" value="Cancel" style="position:absolute; left:20px; top: 110px; width:80px;">
-	
+	<div id="container"></div>
+	<input type="button" id="add" value="Add"
+		style="position: absolute; left: 20px; top: 20px; width: 80px;">
+	<input type="button" id="edit" value="Edit"
+		style="position: absolute; left: 20px; top: 50px; width: 80px;">
+	<input type="button" id="delete" value="Delete"
+		style="position: absolute; left: 20px; top: 80px; width: 80px;">
+	<input type="button" id="cancel" value="Cancel"
+		style="position: absolute; left: 20px; top: 110px; width: 80px;">
+
 	<script>
     var Manager = function() {
-      var manager = function(layer, container, btnAdd, btnEdit, btnDelete, btnCancel) {
+      var manager = function(layer, container, btnAdd, btnEdit, btnDelete,
+          btnCancel) {
 
-        var initializeAddState = function(){
+        var initializeAddState = function() {
           console.log('initializing add state');
-          btnAdd.attr('disabled','disabled');
-          btnEdit.attr('disabled','disabled');
-          btnDelete.attr('disabled','disabled');
+          btnAdd.attr('disabled', 'disabled');
+          btnEdit.attr('disabled', 'disabled');
+          btnDelete.attr('disabled', 'disabled');
           btnCancel.removeAttr('disabled');
         };
-        
-        var uninitializeAddState = function(){
+
+        var uninitializeAddState = function() {
           console.log('uninitializing add state');
         };
-        
-        var initializeEditState = function(){
+
+        var initializeEditState = function() {
           console.log('initializing edit state');
-          btnAdd.attr('disabled','disabled');
-          btnEdit.attr('disabled','disabled');
-          btnDelete.attr('disabled','disabled');
+          btnAdd.attr('disabled', 'disabled');
+          btnEdit.attr('disabled', 'disabled');
+          btnDelete.attr('disabled', 'disabled');
           btnCancel.removeAttr('disabled');
         };
-        
-        var uninitializeEditState = function(){
+
+        var uninitializeEditState = function() {
           console.log('uninitializing edit state');
+        };
+
+        var initializeDeleteState = function() {
+          console.log('initializing delete state');
+          btnAdd.attr('disabled', 'disabled');
+          btnEdit.attr('disabled', 'disabled');
+          btnDelete.attr('disabled', 'disabled');
+          btnCancel.removeAttr('disabled');
+        };
+
+        var uninitializeDeleteState = function() {
+          console.log('uninitializing delete state');
         };
 
         var initializeIdleState = function() {
@@ -64,7 +80,11 @@ body,html {
           btnAdd.removeAttr('disabled');
           btnEdit.removeAttr('disabled');
           btnDelete.removeAttr('disabled');
-          btnCancel.attr('disabled','disabled');
+          btnCancel.attr('disabled', 'disabled');
+        };
+
+        var uninitializeIdleState = function() {
+          console.log('uninitializing idle state');
         };
 
         var stateMachine = StateMachine.create({
@@ -86,24 +106,48 @@ body,html {
             from : 'Idle',
             to : 'DeletingArea'
           } ],
-          callbacks:{
-            onenterAddingNewArea : function(event, from, to) { initializeAddState(); },
-            onleaveAddingNewArea : function(event, from, to) { uninitializeAddState(); },
-            onenterEditingArea : function(event, from, to) { console.log('> editing area'); },
-            onleaveEditingArea : function(event, from, to) { console.log('< editing area'); },
-            onenterDeletingArea : function(event, from, to) { console.log('> deleting area'); },
-            onleaveDeletingArea : function(event, from, to) { console.log('< deleting area'); },
-            onenterIdle : function(event, from, to) { initializeIdleState(); },
-            onleaveIdle : function(event, from, to) { console.log('< idle'); }
+          callbacks : {
+            onenterAddingNewArea : function(event, from, to) {
+              initializeAddState();
+            },
+            onleaveAddingNewArea : function(event, from, to) {
+              uninitializeAddState();
+            },
+            onenterEditingArea : function(event, from, to) {
+              initializeEditState();
+            },
+            onleaveEditingArea : function(event, from, to) {
+              uninitializeEditState();
+            },
+            onenterDeletingArea : function(event, from, to) {
+              initializeDeleteState();
+            },
+            onleaveDeletingArea : function(event, from, to) {
+              uninitializeDeleteState();
+            },
+            onenterIdle : function(event, from, to) {
+              initializeIdleState();
+            },
+            onleaveIdle : function(event, from, to) {
+              uninitializeIdleState();
+            }
           }
         });
 
         var initContainer = function(instance, container) {
           container.on("click", clickHandler);
-          btnAdd.on("click", function(event) { stateMachine.addArea(); });
-          btnEdit.on("click", function(event) { stateMachine.editArea(); });
-          btnDelete.on("click", function(event) { stateMachine.deleteArea(); });
-          btnCancel.on("click", function(event) { stateMachine.idle(); });
+          btnAdd.on("click", function(event) {
+            stateMachine.addArea();
+          });
+          btnEdit.on("click", function(event) {
+            stateMachine.editArea();
+          });
+          btnDelete.on("click", function(event) {
+            stateMachine.deleteArea();
+          });
+          btnCancel.on("click", function(event) {
+            stateMachine.idle();
+          });
         };
 
         var createCircle = function(x, y, layer) {
@@ -166,7 +210,8 @@ body,html {
     var layer = new Kinetic.Layer();
     stage.add(layer);
 
-    var m = new Manager(layer, $(document), $("#add"), $("#edit"), $("#delete"), $("#cancel"));
+    var m = new Manager(layer, $(document), $("#add"), $("#edit"),
+        $("#delete"), $("#cancel"));
   </script>
 
 </body>
